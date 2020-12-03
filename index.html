@@ -4,17 +4,17 @@
 <head>
     <meta charset="utf-8" />
     <title>
-        Pan-STARRS Image Colorizer
+        Megacam Image Colorizer
     </title>
   <style>
 .slidecontainer {
-  width: 30%;
+  width: 100%;
 }
 
 .slider {
   -webkit-appearance: none;
   width: 100%;
-  height: 25px;
+  height: 15px;
   background: #d3d3d3;
   outline: none;
   opacity: 0.7;
@@ -29,38 +29,490 @@
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 25px;
-  height: 25px;
+  width: 15px;
+  height: 17px;
   background: #4CAF50;
   cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
+  width: 15px;
+  height: 17px;
   background: #4CAF50;
   cursor: pointer;
 }
+table, th, td {
+  border: 1px solid black;
+}
+
+      .flex-container {
+        display: flex;
+        align-items: center; /* Use another value to see the result */
+        width: 100%;
+      }
+      .flex-container > div {
+        width: 25%;
+}
+
 </style>
 </head>
 <body>
 
-<h1>Custom Range Slider</h1>
-<p>Drag the slider to display the current value.</p>
+<table style="width:100%">
+  <tr>
+    <th style="text-align:left;vertical-align:top;padding:0"> Step 1: Select a set of images
+      <p>
+	<form name="imageForm">
+	<input type="radio" name="image" id="img1" value="veilsouth" />
+	<label>Veil Nebula South</label>
+	<input type="radio" name="image" id="img2" value="ngc7380" />
+	<label>NGC 7380</label>
+	<br>
+	<input type="radio" name="image" id="img3" value="ic4603" />
+	<label>IC 4603</label>
+	<input type="radio" name="image" id="img4" value="ngc6820" />
+	<label>NGC 6820</label>
+	<input type="radio" name="image" id="img5" value="ngc1499" />
+	<label>NGC 1499</label>
+      </form>
+    </th>
+    <th  style="text-align:left;vertical-align:top;padding:0">
+      Step 2: Select a filter (grizy) for each channel (RGB)
+      <p>
+	<div class="flex-container">
+	  <div style="flex-basis:20%;text-align:right">
+	    Red (R) =
+	    <br>
+	    Green (G) =
+	    <br>
+	    Blue (B) =
+	  </div>
+	  <div style="flex-basis:80%" >
+	<input type="radio" name="Rfilt" id="Rg" value="g" />
+	<label>g</label>
+	<input type="radio" name="Rfilt" id="Rr" value="r" />
+	<label>r</label>
+	<input type="radio" name="Ufilt" id="Ru" value="u" />
+	<label>u</label>
+	<input type="radio" name="Rfilt" id="Rnone" value="none" checked/>
+	<label>none</label>
+      <br>
+	<input type="radio" name="Gfilt" id="Gg" value="g" />
+	<label>g</label>
+	<input type="radio" name="Gfilt" id="Gr" value="r" />
+	<label>r</label>
+	<input type="radio" name="Gfilt" id="Gu" value="u" />
+	<label>u</label>
+	<input type="radio" name="Gfilt" id="Gnone" value="none" checked/>
+	<label>none</label>
+      <br>
+	<input type="radio" name="Bfilt" id="Bg" value="g" />
+	<label>g</label>
+	<input type="radio" name="Bfilt" id="Br" value="r" />
+	<label>r</label>
+	<input type="radio" name="Bfilt" id="Bu" value="u" />
+	<label>u</label>
+	<input type="radio" name="Bfilt" id="Bnone" value="none" checked/>
+	<label>none</label>
+	  </div>
+	  </div>
+	
 
-<div class="slidecontainer">
-  <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
-  <p>Value: <span id="demo"></span></p>
-</div>
+    </th>
+  </tr>
+  <tr>
+    <th style="text-align:left;vertical-align:top;padding:0">
+      Step 3: Adjust the amount of Red, Green, and Blue 
+      <p>
+	<div id="imageHolder"></div>
+	<div class="flex-container">
+      <div class="slidecontainer">
+	<input type="range" min="1" max="100" value="50" class="slider" id="sliderR">
+	<p>R Value: <span id="valR"></span></p>
+      </div>
+      <canvas id="CanvasRfilter" width="150" height="150" style="border:1px solid #d3d3d3;">
+	Your browser does not support the HTML5 canvas tag.
+      </canvas>
+	</div>
+		<div class="flex-container">
+      <div class="slidecontainer">
+	<input type="range" min="1" max="100" value="50" class="slider" id="sliderG">
+	<p>G Value: <span id="valG"></span></p>
+      </div>
+      <canvas id="CanvasGfilter" width="150" height="150" style="border:1px solid #d3d3d3;">
+	Your browser does not support the HTML5 canvas tag.
+      </canvas>
 
+		</div>
+      	<div class="flex-container">
+      <div class="slidecontainer">
+	<input type="range" min="1" max="100" value="50" class="slider" id="sliderB">
+	<p>B Value: <span id="valB"></span></p>
+      </div>
+            <canvas id="CanvasBfilter" width="150" height="150" style="border:1px solid #d3d3d3;">
+	Your browser does not support the HTML5 canvas tag.
+      </canvas>
+
+            </div>
+    </th>
+    <th style="text-align:left;vertical-align:top;padding:0" >Combined Color image
+      <br>
+      
+
+      <table>
+	<th>
+      <canvas id="CanvasBig" width="500" height="400" style="border:1px solid #d3d3d3;">
+	Your browser does not support the HTML5 canvas tag.
+      </canvas>
+
+	</th>
+	<th>
+	  <br>
+	  Zoom Controls
+	  <br>
+      <button type="button" name="zoomin" id="zoomin">In</button>
+      <button type="button" name="zoomout" id="zoomout">Out</button>
+      <br>
+      Pan Controls
+      <br>
+      <button type="button" name="panleft" id="panleft">Left</button>
+      <button type="button" name="panright" id="panright">Right</button>
+<br>
+      <button type="button" name="panup" id="panup">Up</button>
+      <button type="button" name="pandown" id="pandown">Down</button>
+      </th>
+      </table>
+      
+    </th>
+  </tr>
+  </table>
+<span id="DebugOutput"></span></p>
 <script>
-var slider = document.getElementById("myRange");
-var output = document.getElementById("demo");
-output.innerHTML = slider.value;
+  var psimage = {
+  imageName : "none",
+  sliderValR : 50,
+  sliderValG : 50,
+  sliderValB : 50,
+  filterR : "none",
+  filterG : "none",
+  filterB : "none",
+  state   : "changed"
+  };
 
-slider.oninput = function() {
-  output.innerHTML = this.value;
-}
+  var zoomFactor=1;
+  var dx=0;
+  var dy=0;
+
+  psimage.sliderValR = document.getElementById("sliderR");
+  psimage.sliderValG = document.getElementById("sliderG");
+  psimage.sliderValB = document.getElementById("sliderB");
+  var zoomIn= document.getElementById("zoomin");
+  var zoomOut= document.getElementById("zoomout");
+  var panLeft= document.getElementById("panleft");
+  var panRight= document.getElementById("panright");
+  var panUp= document.getElementById("panup");
+  var panDown= document.getElementById("pandown");
+  var outputR = document.getElementById("valR");
+  var outputG = document.getElementById("valG");
+  var outputB = document.getElementById("valB");
+  var valRg = document.getElementById("Rg");
+  var valRr = document.getElementById("Rr");
+  var valRu = document.getElementById("Ru");
+  var valRnone = document.getElementById("Rnone");
+  var valGg = document.getElementById("Gg");
+  var valGr = document.getElementById("Gr");
+  var valGu = document.getElementById("Gu");
+  var valGnone = document.getElementById("Gnone");
+  var valBg = document.getElementById("Bg");
+  var valBr = document.getElementById("Br");
+  var valBu = document.getElementById("Bu");
+  var valBnone = document.getElementById("Bnone");
+  var im1 = document.getElementById("img1");
+  var im2 = document.getElementById("img2");
+  var im3 = document.getElementById("img3");
+  var im4 = document.getElementById("img4");
+  var im5 = document.getElementById("img5");
+//  var im = document.getElementsByClassName("image");
+
+  var ctxR = document.getElementById("CanvasRfilter").getContext("2d");
+  var Rimg = new Image();
+  Rimg.src="none_none_small.png";
+  Rimg.onload = function() {ctxR.drawImage(Rimg,0,0,150,150);}
+
+  var ctxG = document.getElementById("CanvasGfilter").getContext("2d");
+  var Gimg = new Image();
+  Gimg.src="none_none_small.png";
+  Gimg.onload = function() {ctxG.drawImage(Gimg,0,0,150,150);}
+  
+  var ctxB = document.getElementById("CanvasBfilter").getContext("2d");
+  var Bimg = new Image();
+  Bimg.src="none_none_small.png";
+  Bimg.onload = function() {ctxB.drawImage(Bimg,0,0,150,150);}
+  
+  var ctxBig = document.getElementById("CanvasBig").getContext("2d");
+  var BigImg = new Image();
+  var BigImgR = new Image();
+  var BigImgG = new Image();
+  var BigImgB = new Image();
+
+  BigImg.src="none_none_big.png";
+  BigImgR.src="none_none_big.png";
+  BigImgG.src="none_none_big.png";
+  BigImgB.src="none_none_big.png";
+  
+  BigImg.onload = function() {ctxBig.drawImage(BigImg,0,0,500,400);}
+
+  // Display the default values:
+  outputR.innerHTML = psimage.sliderValR.value;
+  outputB.innerHTML = psimage.sliderValB.value;
+  outputG.innerHTML = psimage.sliderValG.value;
+  
+  // Get the slider values when they are adjusted
+  
+  psimage.sliderValR.oninput = function() {
+  outputR.innerHTML = this.value;
+  psimage.state='changed';
+  //  printDebugStuff();
+  }
+
+  psimage.sliderValG.oninput = function() {
+  outputG.innerHTML = this.value;  psimage.state="changed";
+//  printDebugStuff();
+  }
+
+  psimage.sliderValB.oninput = function() {
+  outputB.innerHTML = this.value;  psimage.state="changed";
+//  printDebugStuff();
+  }
+
+  zoomIn.onclick = function() {
+  if (zoomFactor<10) {
+		     zoomFactor=zoomFactor+1;
+		    psimage.state="changed";
+		    }
+		    }
+
+		    
+  zoomOut.onclick = function() {
+		     if (zoomFactor>1) {
+    zoomFactor=zoomFactor-1;
+    
+    psimage.state="changed";
+    if (zoomFactor==1) {dx=0;dy=0;}
+    }
+  }
+
+    panLeft.onclick = function() {
+    if (zoomFactor>1) {
+    dx=dx+100;
+    psimage.state="changed";
+    }}
+
+        panRight.onclick = function() {
+    if (zoomFactor>1) {
+    dx=dx-100;
+    psimage.state="changed";
+    }}
+
+        panUp.onclick = function() {
+    if (zoomFactor>1) {
+    dy=dy+100;
+    psimage.state="changed";
+    }}
+
+        panDown.onclick = function() {
+    if (zoomFactor>1) {
+    dy=dy-100;
+    psimage.state="changed";
+    }}
+    
+  valRg.onclick = function() {
+  psimage.filterR= "g";
+  psimage.filterR= this.value;   psimage.state="changed";
+  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
+  BigImgR.src=psimage.imageName+"_"+psimage.filterR+"_big.png";
+//  printDebugStuff();
+  }
+  valRr.oninput = function() {
+  psimage.filterR= "r";   psimage.state="changed";
+  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
+      BigImgR.src=psimage.imageName+"_"+psimage.filterR+"_big.png";
+//  printDebugStuff();
+  }
+  valRu.oninput = function() {
+  psimage.filterR= "u";
+  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
+      BigImgR.src=psimage.imageName+"_"+psimage.filterR+"_big.png";
+//  printDebugStuff();
+  }
+  valRnone.oninput = function() {
+  psimage.filterR= "none";
+  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
+    BigImgR.src=psimage.imageName+"_"+psimage.filterR+"_big.png";
+//  printDebugStuff();
+  }
+
+    valBg.oninput = function() {
+  psimage.filterB= "g";
+  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
+    BigImgB.src=psimage.imageName+"_"+psimage.filterB+"_big.png";
+//  printDebugStuff();
+  }
+  valBr.oninput = function() {
+  psimage.filterB= "r";
+  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
+    BigImgB.src=psimage.imageName+"_"+psimage.filterB+"_big.png";
+//  printDebugStuff();
+  }
+  valBu.oninput = function() {
+  psimage.filterB= "u";
+  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
+    BigImgB.src=psimage.imageName+"_"+psimage.filterB+"_big.png";
+//  printDebugStuff();
+  }
+  valBnone.oninput = function() {
+  psimage.filterB= "none";
+//  setImageNames();
+  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
+  BigImgB.src=psimage.imageName+"_"+psimage.filterB+"_big.png";
+  //  printDebugStuff();
+  }
+//var radios = document.forms["imageForm"].elements["myradio"];
+//for(var i = 0, max = radios.length; i < max; i++) {
+//    radios[i].onclick = function() {
+//        alert(this.value);
+//    }
+//}
+  valGg.oninput = function() {
+  psimage.filterG= "g";
+  setImageNames();
+//  printDebugStuff();
+  }
+  valGr.oninput = function() {
+  psimage.filterG= "r";
+  setImageNames();
+//  printDebugStuff();
+  }
+  valGu.oninput = function() {
+  psimage.filterG= "u";
+  setImageNames();
+//  printDebugStuff();
+  }
+  valGnone.oninput = function() {
+  psimage.filterG= "none";
+  setImageNames();
+//  printDebugStuff();
+  }
+  
+  im1.addEventListener("click", function() {
+  psimage.imageName= this.value;
+  setImageNames();
+//  printDebugStuff();
+  });
+  
+  im2.onclick = function() {
+  psimage.imageName= this.value;
+  setImageNames();
+//  printDebugStuff();
+  }
+  
+  im3.onclick = function() {
+  psimage.imageName= this.value;
+  setImageNames();
+//  printDebugStuff();
+  }
+    im4.onclick = function() {
+  psimage.imageName= this.value;
+  setImageNames();
+//  printDebugStuff();
+  }
+    im5.onclick = function() {
+  psimage.imageName= this.value;
+  setImageNames();
+  requestAnimationFrame(printDebugStuff);
+					  }
+					  
+  requestAnimationFrame(printDebugStuff);
+					  //  printDebugStuff();
+
+  function setImageNames() {
+  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
+  Gimg.src=psimage.imageName+"_"+psimage.filterG+"_small.png";
+  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
+  BigImgR.src=psimage.imageName+"_"+psimage.filterR+"_big.png";
+  BigImgG.src=psimage.imageName+"_"+psimage.filterG+"_big.png";
+  BigImgB.src=psimage.imageName+"_"+psimage.filterB+"_big.png";  
+
+  }
+  
+  function changeColors(data,R,G,B) {
+  for (var i = 0; i < data.length; i+=4) {
+		      data[i]=data[i]*(R/100);
+		      data[i+1]=data[i+1]*(G/100);
+		      data[i+2]=data[i+2]*(B/100);
+		      }
+  }
+
+		      
+  function changeColorsBig(data,dataR,dataG,dataB) {
+  for (var i = 0; i < data.length; i+=4) {
+		      data[i]=dataR[i];
+		      data[i+1]=dataG[i+1];
+		      data[i+2]=dataB[i+2];
+		      }
+  }
+		      
+		      var time;
+
+  function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}	      
+  function printDebugStuff(timestamp) {
+
+		      ctxR.drawImage(Rimg,0,0,150,150);
+		      var RimgData=ctxR.getImageData(0,0,150,150);
+		      ctxG.drawImage(Gimg,0,0,150,150);
+		      var GimgData=ctxG.getImageData(0,0,150,150);
+		      ctxB.drawImage(Bimg,0,0,150,150);
+		      var BimgData=ctxB.getImageData(0,0,150,150);		      
+
+		      
+
+
+
+		      ctxBig.drawImage(BigImgR,dx,dy,500*zoomFactor,400*zoomFactor);
+		      var RBigData=ctxBig.getImageData(0,0,500,400);
+
+		      ctxBig.drawImage(BigImgG,dx,dy,500*zoomFactor,400*zoomFactor);
+		      var GBigData=ctxBig.getImageData(0,0,500,400);
+
+		      ctxBig.drawImage(BigImgB,dx,dy,500*zoomFactor,400*zoomFactor);
+		      var BBigData=ctxBig.getImageData(0,0,500,400);
+
+		      var BigData=ctxBig.getImageData(0,0,500,400);
+
+		      
+		      changeColors(RimgData.data,psimage.sliderValR.value*4,0,0);
+		      changeColors(GimgData.data,0,psimage.sliderValG.value*4,0);
+		      changeColors(BimgData.data,0,0,psimage.sliderValB.value*4);
+		      
+		      changeColors(RBigData.data,psimage.sliderValR.value*4,0,0);
+		      changeColors(GBigData.data,0,psimage.sliderValG.value*4,0);
+		      changeColors(BBigData.data,0,0,psimage.sliderValB.value*4);
+		      changeColorsBig(BigData.data,RBigData.data,GBigData.data,BBigData.data);
+
+		      ctxBig.putImageData(BigData,0,0,0,0,500,400);
+   		      ctxB.putImageData(BimgData,0,0);		      
+		      ctxR.putImageData(RimgData,0,0);
+		      ctxG.putImageData(GimgData,0,0);
+		      psimage.state='redrawn';
+		      sleep(20).then(() => { 
+					  requestAnimationFrame(printDebugStuff);
+					  });
+ //document.getElementById("DebugOutput").innerHTML = "R: "+ psimage.sliderValR.value + " G: " + psimage.sliderValG.value + " B:" + psimage.sliderValB.value + " R_filter: " + psimage.filterR + " G_filter: " + psimage.filterG + " B_filter: " + psimage.filterB + " Image_name: " + psimage.imageName + " RimageData.length: "+ RimgData.data.length + "9:00";
+
+  }
+  
 </script>
 
 </body>
