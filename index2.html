@@ -202,7 +202,17 @@ table, th, td {
   var zoomFactor=1;
   var dx=0;
   var dy=0;
-
+  var zfac="01";
+  var tx=0;
+  var ty=0;
+  var tx01="01";
+  var ty00="00";
+  var tx00="00";
+  var ty01="01";
+  var maxx=0;
+  var maxy=0;
+  var xtiles=1;
+  var ytiles=1;
   psimage.sliderValR = document.getElementById("sliderR");
   psimage.sliderValG = document.getElementById("sliderG");
   psimage.sliderValB = document.getElementById("sliderB");
@@ -251,14 +261,23 @@ table, th, td {
   
   var ctxBig = document.getElementById("CanvasBig").getContext("2d");
   var BigImg = new Image();
-  var BigImgR = new Image();
-  var BigImgG = new Image();
-  var BigImgB = new Image();
-
+  var BigImgR00 = new Image();
+  var BigImgG00 = new Image();
+  var BigImgB00 = new Image();
+  var BigImgR01 = new Image();
+  var BigImgG01 = new Image();
+  var BigImgB01 = new Image();
+  var BigImgR10 = new Image();
+  var BigImgG10 = new Image();
+  var BigImgB10 = new Image();
+  var BigImgR11 = new Image();
+  var BigImgG11 = new Image();
+  var BigImgB11 = new Image();
+  
   BigImg.src="none_none_big.png";
-  BigImgR.src="none_none_big.png";
-  BigImgG.src="none_none_big.png";
-  BigImgB.src="none_none_big.png";
+  BigImgR00.src="none_none_big.png";
+  BigImgG00.src="none_none_big.png";
+  BigImgB00.src="none_none_big.png";
   
   BigImg.onload = function() {ctxBig.drawImage(BigImg,0,0,500,400);}
 
@@ -286,103 +305,165 @@ table, th, td {
   }
 
   zoomIn.onclick = function() {
-  if (zoomFactor<10) {
-		     zoomFactor=zoomFactor+1;
-		    psimage.state="changed";
+  if (zoomFactor<4)
+	{
+        zoomFactor=zoomFactor+1;
+		  psimage.state="changed";
+		  if (zoomFactor==1) { zfac="01"; maxx=-0; maxy=0; xtiles=1; ytiles=1; }
+		  if (zoomFactor==2) { zfac="02"; maxx=-500; maxy=-400; xtiles=2; ytiles=2;}
+		  if (zoomFactor==3) { zfac="03"; maxx=-1500; maxy= -1200; xtiles=4; ytiles=4;}
+		  if (zoomFactor==4) { zfac="04"; maxx=-3500; maxy= -2800; xtiles=8; ytiles=8;}
+		  tx=parseInt(tx*2);
+		  ty=parseInt(ty*2);
+		  tx00=String(tx).padStart(2,'0');
+		  tx01=String(tx+1).padStart(2,'0');
+		  ty00=String(ty).padStart(2,'0');
+		  ty01=String(ty+1).padStart(2,'0');
+		  setImageNames();
+		  
 		    }
-		    }
+   }
 
 		    
   zoomOut.onclick = function() {
 		     if (zoomFactor>1) {
     zoomFactor=zoomFactor-1;
-    
     psimage.state="changed";
+    		  if (zoomFactor==1) { zfac="01"; maxx=-0; maxy=0; xtiles=1; ytiles=1;}
+		  if (zoomFactor==2) { zfac="02"; maxx=-500;maxy=-400; xtiles=2; ytiles=2;}
+		  if (zoomFactor==3) { zfac="03"; maxx=-1500;maxy=-1200;xtiles=4; ytiles=4;}
+		  if (zoomFactor==4) { zfac="04"; maxx=-3500;maxy=-2800;xtiles=8; ytiles=8;}
+		  tx=parseInt(tx/2);
+		  ty=parseInt(ty/2);
+		  tx00=String(tx).padStart(2,'0');
+		  tx01=String(tx+1).padStart(2,'0');
+		  ty00=String(ty).padStart(2,'0');
+		  ty01=String(ty+1).padStart(2,'0');
+		  setImageNames();
     if (zoomFactor==1) {dx=0;dy=0;}
     }
   }
 
     panLeft.onclick = function() {
-    if (zoomFactor>1) {
+    if (zoomFactor==2 && dx < 0) {
+			      dx=dx+100;
+			      psimage.state="changed";
+			      
+			      }
+    
+    if (zoomFactor>2 && dx < 0 ) {
     dx=dx+100;
+
+    //we start with tx=0, ty=0, and dx=0, dy=0. If we pan too far right, we need to load different tiles
+
+    if ((dx*-1)<((tx)*500) && tx>0) {
+      tx=tx-1;
+      tx00=String(tx).padStart(2,'0');
+    tx01=String(tx+1).padStart(2,'0');
+    setImageNames();
+    }
     psimage.state="changed";
     }}
 
-        panRight.onclick = function() {
-    if (zoomFactor>1) {
-    dx=dx-100;
+panRight.onclick = function() {
+    //zoom factor 1 has just 1 image,
+    //zoom factor 2 has just 4 (and they all load)
+
+    if (zoomFactor==2 && dx > maxx ) {
+	dx=dx-100;
+	psimage.state="changed";
+    }
+    if (zoomFactor>2 && dx > maxx) {
+	dx=dx-100;
+	//if ((dx*-1)>((tx+1)*500) && tx<2^(zoomFactor-1)-2 ) {
+	if ((-dx> (tx+1)*500) && tx < xtiles-2) {						    
+	// the logic: for zoom=3, there are 4 tiles in the x direction, 00,01,02,03
+	// if we pan right, tx has to be lest than the 02 tile, or else we go off the edge			      
+				      tx=tx+1;
+    tx00=String(tx).padStart(2,'0');
+    tx01=String(tx+1).padStart(2,'0');
+    setImageNames();
+    } 
+						      
+    
     psimage.state="changed";
     }}
 
-        panUp.onclick = function() {
-    if (zoomFactor>1) {
+    panUp.onclick = function() {
+    if (zoomFactor==2 && dy < 0) {
     dy=dy+100;
     psimage.state="changed";
-    }}
+						      }
+    if (zoomFactor>2 && dy <0 ) {
+    dy=dy+100;
+    //we start with tx=0, ty=0, and dx=0, dy=0. If we pan too far right, we need to load different tiles
 
-        panDown.onclick = function() {
-    if (zoomFactor>1) {
+    if ((dy*-1)<((ty)*400) && ty>0) {
+      ty=ty-1;
+      ty00=String(ty).padStart(2,'0');
+    ty01=String(ty+1).padStart(2,'0');
+    setImageNames();
+    }       
+    psimage.state="changed";
+						      }
+						      
+    }
+
+    panDown.onclick = function() {
+        if (zoomFactor==2 && dy > maxy) {
     dy=dy-100;
     psimage.state="changed";
-    }}
+						      }
+    if (zoomFactor>2 && dy > maxy) {
+	    dy=dy-100;
+	if ((-dy> (ty+1)*400) && ty < ytiles-2) {						    
+	// the logic: for zoom=3, there are 4 tiles in the x direction, 00,01,02,03
+	// if we pan right, tx has to be lest than the 02 tile, or else we go off the edge			      
+				      ty=ty+1;
+    ty00=String(ty).padStart(2,'0');
+    ty01=String(ty+1).padStart(2,'0');
+    setImageNames();
+}	    
+    psimage.state="changed";
+						      }
+						      
+    }
     
   valRg.onclick = function() {
   psimage.filterR= "g";
   psimage.filterR= this.value;   psimage.state="changed";
-  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
-  BigImgR.src=psimage.imageName+"_"+psimage.filterR+"_big.png";
-//  printDebugStuff();
+    setImageNames();
   }
   valRr.oninput = function() {
   psimage.filterR= "r";   psimage.state="changed";
-  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
-      BigImgR.src=psimage.imageName+"_"+psimage.filterR+"_big.png";
-//  printDebugStuff();
+    setImageNames();
   }
   valRu.oninput = function() {
   psimage.filterR= "u";
-  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
-      BigImgR.src=psimage.imageName+"_"+psimage.filterR+"_big.png";
-//  printDebugStuff();
+    setImageNames();
   }
   valRnone.oninput = function() {
   psimage.filterR= "none";
-  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
-    BigImgR.src=psimage.imageName+"_"+psimage.filterR+"_big.png";
-//  printDebugStuff();
-  }
+    setImageNames();
 
-    valBg.oninput = function() {
-  psimage.filterB= "g";
-  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
-    BigImgB.src=psimage.imageName+"_"+psimage.filterB+"_big.png";
-//  printDebugStuff();
   }
+    valBg.oninput = function() {
+    psimage.filterB= "g";
+    setImageNames();
+    }
   valBr.oninput = function() {
-  psimage.filterB= "r";
-  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
-    BigImgB.src=psimage.imageName+"_"+psimage.filterB+"_big.png";
-//  printDebugStuff();
+    psimage.filterB= "r";
+    setImageNames();
   }
   valBu.oninput = function() {
   psimage.filterB= "u";
-  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
-    BigImgB.src=psimage.imageName+"_"+psimage.filterB+"_big.png";
-//  printDebugStuff();
-  }
+  setImageNames();
+    }
   valBnone.oninput = function() {
   psimage.filterB= "none";
-//  setImageNames();
-  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
-  BigImgB.src=psimage.imageName+"_"+psimage.filterB+"_big.png";
+  setImageNames();
   //  printDebugStuff();
   }
-//var radios = document.forms["imageForm"].elements["myradio"];
-//for(var i = 0, max = radios.length; i < max; i++) {
-//    radios[i].onclick = function() {
-//        alert(this.value);
-//    }
-//}
   valGg.oninput = function() {
   psimage.filterG= "g";
   setImageNames();
@@ -435,16 +516,34 @@ table, th, td {
   requestAnimationFrame(printDebugStuff);
 					  //  printDebugStuff();
 
-  function setImageNames() {
-  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
-  Gimg.src=psimage.imageName+"_"+psimage.filterG+"_small.png";
-  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
-  BigImgR.src=psimage.imageName+"_"+psimage.filterR+"_big.png";
-  BigImgG.src=psimage.imageName+"_"+psimage.filterG+"_big.png";
-  BigImgB.src=psimage.imageName+"_"+psimage.filterB+"_big.png";  
+					  function setImageNames()
+					  {
+					  Rimg.src=psimage.imageName+"_"+psimage.filterR+"_small.png";
+					  Gimg.src=psimage.imageName+"_"+psimage.filterG+"_small.png";
+					  Bimg.src=psimage.imageName+"_"+psimage.filterB+"_small.png";
 
-  }
-  
+    BigImgR00.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterR+"_big_zoom_"+zfac+"_"+ty00+"_"+tx00+".png";
+    BigImgG00.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterG+"_big_zoom_"+zfac+"_"+ty00+"_"+tx00+".png";
+    BigImgB00.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterB+"_big_zoom_"+zfac+"_"+ty00+"_"+tx00+".png";
+     if (zoomFactor>1) {
+	      
+    BigImgR01.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterR+"_big_zoom_"+zfac+"_"+ty00+"_"+tx01+".png";
+    BigImgG01.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterG+"_big_zoom_"+zfac+"_"+ty00+"_"+tx01+".png";
+    BigImgB01.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterB+"_big_zoom_"+zfac+"_"+ty00+"_"+tx01+".png";
+
+    BigImgR10.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterR+"_big_zoom_"+zfac+"_"+ty01+"_"+tx00+".png";
+    BigImgG10.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterG+"_big_zoom_"+zfac+"_"+ty01+"_"+tx00+".png";
+    BigImgB10.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterB+"_big_zoom_"+zfac+"_"+ty01+"_"+tx00+".png";
+
+    BigImgR11.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterR+"_big_zoom_"+zfac+"_"+ty01+"_"+tx01+".png";
+    BigImgG11.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterG+"_big_zoom_"+zfac+"_"+ty01+"_"+tx01+".png";
+    BigImgB11.src=psimage.imageName+"/"+psimage.imageName+"_"+psimage.filterB+"_big_zoom_"+zfac+"_"+ty01+"_"+tx01+".png";
+
+    }
+    }
+
+    function pad(n, width, z) { while(n.length<width) n = '' + z + n; return n;}
+    
   function changeColors(data,R,G,B) {
   for (var i = 0; i < data.length; i+=4) {
 		      data[i]=data[i]*(R/100);
@@ -468,40 +567,94 @@ table, th, td {
   return new Promise(resolve => setTimeout(resolve, ms));
 }	      
   function printDebugStuff(timestamp) {
-
+		      //ctxBig.clearRect(0, 0, canvas.width, canvas.height);
+		      // colorize the R/G/B thumbnails on the left because we can 
 		      ctxR.drawImage(Rimg,0,0,150,150);
 		      var RimgData=ctxR.getImageData(0,0,150,150);
 		      ctxG.drawImage(Gimg,0,0,150,150);
 		      var GimgData=ctxG.getImageData(0,0,150,150);
 		      ctxB.drawImage(Bimg,0,0,150,150);
 		      var BimgData=ctxB.getImageData(0,0,150,150);		      
-
-		      
-
-
-
-		      ctxBig.drawImage(BigImgR,dx,dy,500*zoomFactor,400*zoomFactor);
-		      var RBigData=ctxBig.getImageData(0,0,500,400);
-
-		      ctxBig.drawImage(BigImgG,dx,dy,500*zoomFactor,400*zoomFactor);
-		      var GBigData=ctxBig.getImageData(0,0,500,400);
-
-		      ctxBig.drawImage(BigImgB,dx,dy,500*zoomFactor,400*zoomFactor);
-		      var BBigData=ctxBig.getImageData(0,0,500,400);
-
-		      var BigData=ctxBig.getImageData(0,0,500,400);
-
-		      
 		      changeColors(RimgData.data,psimage.sliderValR.value*4,0,0);
 		      changeColors(GimgData.data,0,psimage.sliderValG.value*4,0);
 		      changeColors(BimgData.data,0,0,psimage.sliderValB.value*4);
+
+
+		      if (zoomFactor==1) {
+		      //draw R image to the canvas, and then copy to memory to RbigData
+		      ctxBig.drawImage(BigImgR00,dx,dy,500,400);
+		      var RBigData=ctxBig.getImageData(0,0,500,400);
 		      
+		      //draw G image to the canvas, and then copy to memory to GbigData
+		      ctxBig.drawImage(BigImgG00,dx,dy,500,400);
+		      var GBigData=ctxBig.getImageData(0,0,500,400);
+		      //draw B image to the canvas, and then copy to memory to BbigData
+		      ctxBig.drawImage(BigImgB00,dx,dy,500,400); 
+		      var BBigData=ctxBig.getImageData(0,0,500,400);
+
+		      // make a copy of the memory to BigData (to get the correct size/shape image matrix)
+		      var BigData=ctxBig.getImageData(0,0,500,400);
+
+		      //change the colors for each channel
 		      changeColors(RBigData.data,psimage.sliderValR.value*4,0,0);
 		      changeColors(GBigData.data,0,psimage.sliderValG.value*4,0);
 		      changeColors(BBigData.data,0,0,psimage.sliderValB.value*4);
-		      changeColorsBig(BigData.data,RBigData.data,GBigData.data,BBigData.data);
+		      //combine the channels
+                      changeColorsBig(BigData.data,RBigData.data,GBigData.data,BBigData.data);
+		      //display the colorized image
+		      ctxBig.putImageData(BigData,0,0,0,0,500,400);      
+}
+		      if (zoomFactor>1) {
+      // more complicated because if the zoomFactor is not 1, we have tiles.
+      //draw R on the canvas first
+      ctxBig.drawImage(BigImgR00, dx+tx*500,     dy+ty*400     ,500,400);
+      ctxBig.drawImage(BigImgR01, dx+(tx+1)*500, dy+ty*400     ,500,400);
+      ctxBig.drawImage(BigImgR10, dx+tx*500,     dy+(ty+1)*400 ,500,400);
+      ctxBig.drawImage(BigImgR11, dx+(tx+1)*500, dy+(ty+1)*400 ,500,400);
+      // get the image (for R)
+      var RBigData=ctxBig.getImageData(0,0,500,400);
 
-		      ctxBig.putImageData(BigData,0,0,0,0,500,400);
+      //draw G on the canvas (overwrite everything else)
+      ctxBig.drawImage(BigImgG00,dx+tx*500,      dy+ty*400,     500,400);
+      ctxBig.drawImage(BigImgG01,dx+(tx+1)*500,  dy+ty*400,     500,400);
+      ctxBig.drawImage(BigImgG10,dx+tx*500,      dy+(ty+1)*400, 500,400);
+      ctxBig.drawImage(BigImgG11,dx+(tx+1)*500,  dy+(ty+1)*400, 500,400);
+      // get the image (for G)
+      var GBigData=ctxBig.getImageData(0,0,500,400);
+
+
+      //draw B on the canvas (overwrite everything else)
+      ctxBig.drawImage(BigImgB00,dx+tx*500,      dy+ty*400,     500,400);
+      ctxBig.drawImage(BigImgB01,dx+(tx+1)*500,  dy+ty*400,     500,400);
+      ctxBig.drawImage(BigImgB10,dx+tx*500,      dy+(ty+1)*400, 500,400);
+      ctxBig.drawImage(BigImgB11,dx+(tx+1)*500,  dy+(ty+1)*400, 500,400);
+      // get the image (for B)
+      var BBigData=ctxBig.getImageData(0,0,500,400);
+
+      // get the image (for everything so it has the same dimensions; this will be written over)
+      var BigData=ctxBig.getImageData(0,0,500,400);
+
+      // For each of the R/B/G data, get the color correct
+      changeColors(RBigData.data,psimage.sliderValR.value*4,0,0);
+      changeColors(GBigData.data,0,psimage.sliderValG.value*4,0);
+      changeColors(BBigData.data,0,0,psimage.sliderValB.value*4);
+
+      // combine the channels to get the colorized data
+      changeColorsBig(BigData.data,RBigData.data,GBigData.data,BBigData.data);
+
+      // put the data in the viewport
+      ctxBig.putImageData(BigData,0,0,0,0,500,400);      
+      
+      
+      }
+		     
+
+                      //GBigData=ctxBig.getImageData(0,0,500,400);
+		      //RBigData=ctxBig.getImageData(0,0,500,400);
+      		      //BBigData=ctxBig.getImageData(0,0,500,400);
+		      //BigData=ctxBig.getImageData(0,0,500,400);
+
+      
    		      ctxB.putImageData(BimgData,0,0);		      
 		      ctxR.putImageData(RimgData,0,0);
 		      ctxG.putImageData(GimgData,0,0);
@@ -509,7 +662,7 @@ table, th, td {
 		      sleep(20).then(() => { 
 					  requestAnimationFrame(printDebugStuff);
 					  });
- //document.getElementById("DebugOutput").innerHTML = "R: "+ psimage.sliderValR.value + " G: " + psimage.sliderValG.value + " B:" + psimage.sliderValB.value + " R_filter: " + psimage.filterR + " G_filter: " + psimage.filterG + " B_filter: " + psimage.filterB + " Image_name: " + psimage.imageName + " RimageData.length: "+ RimgData.data.length + "9:00";
+ document.getElementById("DebugOutput").innerHTML = "R: "+ psimage.sliderValR.value + " G: " + psimage.sliderValG.value + " B:" + psimage.sliderValB.value + " R_filter: " + psimage.filterR + " G_filter: " + psimage.filterG + " B_filter: " + psimage.filterB + " Image_name: " + psimage.imageName + " RimageData.length: "+ RimgData.data.length + "<br> dx: " + dx + " dy: " + dy + " tx: " + tx+ " ty: " + ty+" tx00: "+tx00 + " tx01: "+tx01 +" ty00: "+ty00 + " ty01: "+ty01 +  " maxx: " + maxx + " maxy: "+ maxy+ " zoomFactor: " + zoomFactor + "<br>  |" + BigImgB00.src +"  |  " + BigImgB01.src +"  |<br>|" + BigImgB10.src +"  |  " + BigImgB11.src+"  |";
 
   }
   
