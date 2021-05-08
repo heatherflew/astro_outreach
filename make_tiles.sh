@@ -1,5 +1,25 @@
+#!/bin/bash
 
-#This assumes you have a 5000x4000 pixel image
+#    Copyright (C) 2020-2021 Heather Flewelling
+
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+#This assumes you have a 5000x4000 pixel image (in the form of .png), and then converts the image into smaller pngs for zooming. 
+#This tool is used to make the zoom tiles to add additional fields into the index.html file.  Essentially, you take an image 
+# that is 5000x4000 pixels, like starryfield_r.png, and it will create the appropriate tiles.  You will need to move the tiles to 
+# the appropriate directory and edit the index.html yourself. 
 
 file=$1
 base=$(basename $file .png)
