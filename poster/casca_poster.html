@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+body {
+font-family: Arial, sans-serif;
+font-size:11px
+}
+ul {
+padding-left: 15px;
+}
+ol {
+padding-left: 15px;
+}
+.item1 { grid-area: header; }
+.item2 { grid-area: menu; }
+.item3 { grid-area: main; }
+.item4 { grid-area: right; }
+.item6 { grid-area: menu2; }
+.item8 { grid-area: right3; }
+.item7 { grid-area: right2; }
+.item5 { grid-area: footer; }
+
+.grid-container {
+display: grid;
+grid-template-columns: auto auto auto;
+  grid-template-areas:
+    'header header header '
+    'menu main right'
+    'menu2 main right3'
+    'menu2 main right2'
+    'footer footer footer';
+  grid-gap: 5px;
+  background-color: #2196F3;
+padding: 5px;
+
+}
+
+.grid-container > div {
+background-color: rgba(255, 255, 255, 0.8);
+text-align: left;
+padding: 0px 0;
+}
+</style>
+</head>
+<body>
+<div class="grid-container">
+  <div class="item1">
+    <h2>Megacam Image Colorizer: create color images from telescope data using a web browser</h2><p>
+    <b>Heather Flewelling</b> (heather@cfht.hawaii.edu) / CFHT / Poster for EPO session of CASCA 2021
+    <br>
+    Best viewed on a laptop / full screen, or download the png <a href="flewelling_casca_2021.png">png</a>
+  </div>
+  <div class="item2"><b>Abstract</b><br><br>
+ A frequently asked question when doing outreach is “how do astronomers make color
+images?”. The answer to this involves explaining how color images are created (with R/G/B channels), as
+well as explaining that telescope images are essentially black and white, and often not observed in
+wavelengths that the human eye can see. Trying to explain how astronomers make color images, with all
+the knobs and dials present in ds9 is quite hard, so I created a very simplified tool to demonstrate how
+to make a color image. This tool was designed to allow anyone to make their own color images, using a
+selected subset of data. It uses html5 and javascript, and can be loaded on a computer or a mobile
+device. It allows the user to select an area of sky (for example: the horsehead nebula), to assign the
+different filters to R/G/B channels in the image, and then to adjust the intensity of those channels, to
+create a color image. There are currently 2 versions, one for a subset of Pan-STARRS images, and
+another for a subset of CFHT MegaCam images.
+  </div>
+  <div class="item3"><b>The Colorizer</b><br><br>
+    <img src="megacam_colorizer_teaser.png" alt="a screenshot of the megacam colorizer program" width=500><br>
+
+    <table style="width:100%">
+      <tr>
+	<td>
+    <b>4 easy steps</b>:
+    <ol>
+      <li>Select the set of images </li>
+      <li>Assign color filters to R/G/B channels </li>
+      <li>Adjust the intensity of each R/G/B channel </li>
+      <li>Zoom and pan around to get a nice view</li>
+    </ol>
+</td>
+	<td>
+	  <b>Features</b><br>
+	  <ul>
+	    <li>Curated set of images</li>
+	    <li>Sensible default image intensities</li>
+	    <li>Easy to zoom/pan and return to defaults</li>
+	    <li>Easy to save final image as a .png</li>
+	  </ul>
+	  </td>
+      </tr>
+    </table>
+    <b>Images used</b><br><br>
+    Veil Nebula South: r/g/u = 2296802p.fits, 2296586p.fits, 2296515p.fits
+<br>
+    NGC 7380: r/g/u = 2297034p.fits, 2296846p.fits, 2296839p.fits
+<br>
+    IC 4603: r/g/u = 2297008p.fits, 2297001p.fits, 2296994p.fits
+<br>
+    NGC 6820: r/g/u = 2300205p.fits, 2300219p.fits, 2300212p.fits
+<br>
+    NGC 1499: r/g/u = 2359986p.fits, 2359993p.fits, 2360526p.fits
+<br><br>
+   <br><b>All exposures available from CADC</b>
+    
+  </div>  
+  <div class="item4"><b>Uses</b><br><br>
+    How to install<br>
+    <ul>
+      <li>GPL-anyone can use, copy, modify</li>
+      <li>Use directly from heatherflew.github.io/astro_outreach</li>
+      <li>Or install on your web server (uses html5/javascript)</li>
+    </ul>
+    System Requirements (user)
+    <ul>
+      <li>internet connection</li>
+      <li>web browser</li>
+      <li>works on phones, chromebooks, laptops, anything with a browser!</li>
+    </ul>
+
+    
+    Where to use<br>
+    <ul>
+      <li>Outreach events</li>
+      <ul>
+	<li>explain how astronomers create color images</li>
+	<li>set up a station so anyone can create their own color images</li>
+	</ul>
+      <li>In undergraduate classes</li>
+      <ul>
+	<li>removes the barrier of using ds9</li>
+	<li>simplifies computer requirements</li>
+	</ul>
+    </ul>
+ 
+
+  </div>
+  <div class="item6">
+    <b>How it works</b><br><br>
+    I selected fields that were observed in several filters using Megacam. For each field, I used ds9 and set the stretch so that it looked reasonable (for ds9, an example command):
+    <br><br>
+ ds9 -scale scope global -scale mode 90 -scale linear -mosaicimage iraf 2296846p.fits -height 4000 -width 5000 -colorbar no -nan black -zoom to fit -saveimage ngc7380_g_big.png -exit
+    <br><br>
+    The initial pngs are then converted to smaller sizes (and tiles) using imagemagick's convert command. 
+    From there, it is a simple bit of math (in javascript) to use the intensity on the sliders to adjust the brightness on the image tiles, which are pngs and easy to load and manipulate in javascript.  The sliders range from 0-100%.  Essentially, if you assign NGC7380 u band to B, NGC7380 g to G, NGC7380 r to R:
+    <br>
+    <br> R channel = NGC7380_R * r_slider / 100.
+    <br> G channel = NGC7380_G * g_slider / 100.
+    <br> B channel = NGC7380_U * b_slider / 100.
+    
+  </div>
+  <div class="item8">
+    <b>Gallery</b>
+    <br><br>
+    <img src="ngc6820zoom.png" alt="zoom of ngc6820" width=90>
+    <img src="veilsouthzoom.png" alt="zoom of ngc6820" width=90>
+    <img src="ic4603.png" alt="zoom of ngc6820" width=90>
+    <img src="nc1499.png" alt="zoom of ngc6820" width=90>
+    Here are a few examples of what can be created using this tool.
+
+
+    <br>
+    
+  </div>
+
+  
+  <div class="item7">
+    <b>Acknowlegements</b><br>
+ <br>Based on observations obtained with MegaPrime/MegaCam, a joint project of CFHT and CEA/DAPNIA, at the Canada-France-Hawaii Telescope (CFHT) which is operated by the National Research Council (NRC) of Canada, the Institut National des Sciences de l'Univers of the Centre National de la Recherche Scientifique (CNRS) of France, and the University of Hawaii. The observations at the CFHT were performed with care and respect from the summit of Maunakea which is a significant cultural and historic site.
+ This research used the facilities of the Canadian Astronomy Data Centre operated by the National Research Council of Canada with the support of the Canadian Space Agency.
+
+ 
+    
+  </div>
+  
+  <div class="item5">
+    Megacam Colorizer link: <a href="https://heatherflew.github.io/astro_outreach/">https://heatherflew.github.io/astro_outreach/</a>, a related tool -> the Pan-STARRS Colorizer link: <a href="https://heatherflew.github.io/ps1astroday">https://heatherflew.github.io/ps1astroday</a><br>
+    Megacam Colorizer is available for download at <a href="https://github.com/heatherflew/astro_outreach">https://github.com/heatherflew/astro_outreach</a>
+
+  </div>
+</div>
+
+</body>
+</html>
